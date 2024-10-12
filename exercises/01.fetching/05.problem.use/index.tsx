@@ -1,42 +1,11 @@
 import {
 	Suspense,
-	// 🐨 bring in use from react
+	use
 } from 'react'
 import * as ReactDOM from 'react-dom/client'
 import { ErrorBoundary } from 'react-error-boundary'
 import { getImageUrlForShip, getShip } from './utils.tsx'
 
-// 💣 delete this
-type UsePromise<Value> = Promise<Value> & {
-	status: 'pending' | 'fulfilled' | 'rejected'
-	value: Value
-	reason: unknown
-}
-
-// 💣 delete this
-function use<Value>(promise: Promise<Value>): Value {
-	const usePromise = promise as UsePromise<Value>
-	if (usePromise.status === 'fulfilled') {
-		return usePromise.value
-	} else if (usePromise.status === 'rejected') {
-		throw usePromise.reason
-	} else if (usePromise.status === 'pending') {
-		throw usePromise
-	} else {
-		usePromise.status = 'pending'
-		usePromise.then(
-			(result) => {
-				usePromise.status = 'fulfilled'
-				usePromise.value = result
-			},
-			(reason) => {
-				usePromise.status = 'rejected'
-				usePromise.reason = reason
-			},
-		)
-		throw usePromise
-	}
-}
 
 const shipName = 'Dreadnought'
 // 🚨 If you want to to test out the error state, change this to 'Dreadyacht'

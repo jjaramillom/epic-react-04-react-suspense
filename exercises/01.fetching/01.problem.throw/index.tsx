@@ -4,7 +4,7 @@ import {
 	getImageUrlForShip,
 	getShip,
 	// 💰 you're gonna want this
-	// type Ship
+	type Ship,
 } from './utils.tsx'
 
 const shipName = 'Dreadnought'
@@ -15,7 +15,9 @@ function App() {
 			<div className="app">
 				<div className="details">
 					{/* 🐨 add a Suspense component here with the fallback set to <ShipFallback /> */}
-					<ShipDetails />
+					<Suspense fallback={<ShipFallback />}>
+						<ShipDetails />
+					</Suspense>
 				</div>
 			</div>
 		</div>
@@ -26,9 +28,14 @@ function App() {
 // 💰 let ship: Ship
 // 🐨 rename this to shipPromise and remove the `await`
 // 🐨 add a .then on the shipPromise that assigns the ship to the resolved value
-const ship = await getShip(shipName)
+let ship: Ship
+const shipPromise = getShip(shipName)
+shipPromise.then((v) => (ship = v))
 
 function ShipDetails() {
+	if (!ship) {
+		throw shipPromise
+	}
 	// 🐨 if the ship hasn't loaded yet, throw the shipPromise
 
 	return (

@@ -3,15 +3,24 @@ import { type Ship } from './api.server.ts'
 export type { Ship }
 
 // 🐨 create a shipCache Map that's got string keys and values are Promise<Ship>
-
+const shipCache = new Map<string, Promise<Ship>>()
 // 🐨 export a new function called getShip (you'll rename the one below).
 //   - it should take a name and optional delay number
 //   - it should check the shipCache for the shipPromise by the name
 //   - if it can't find one, it should call getShipImpl and store the promise in the cache
 //   - then it should return the shipPromise
 
+export function getShip(name: string, delay?: number) {
+	let shipPromise = shipCache.get(name)
+	if (!shipPromise) {
+		shipPromise = getShipImpl(name, delay)
+		shipCache.set(name, shipPromise)
+	}
+	return shipPromise
+}
+
 // 🐨 rename this function to getShipImpl and remove the export
-export async function getShip(name: string, delay?: number) {
+async function getShipImpl(name: string, delay?: number) {
 	const searchParams = new URLSearchParams({ name })
 	if (delay) searchParams.set('delay', String(delay))
 	const response = await fetch(`api/get-ship?${searchParams.toString()}`)

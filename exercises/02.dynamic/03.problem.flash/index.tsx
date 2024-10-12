@@ -2,13 +2,17 @@ import { Suspense, use, useState, useTransition } from 'react'
 import * as ReactDOM from 'react-dom/client'
 import { ErrorBoundary } from 'react-error-boundary'
 // 💰 you're gonna want this:
-// import { useSpinDelay } from 'spin-delay'
+import { useSpinDelay } from 'spin-delay'
 import { getImageUrlForShip, getShip } from './utils.tsx'
 
 function App() {
 	const [shipName, setShipName] = useState('Dreadnought')
 	// 🐨 rename this to isTransitionPending
-	const [isPending, startTransition] = useTransition()
+	const [isTransitionPending, startTransition] = useTransition()
+	const isPending = useSpinDelay(isTransitionPending, {
+		delay: 500,
+		minDuration: 200,
+	})
 	// 🐨 create an isPending based on what you get back from useSpinDelay
 
 	function handleShipSelection(newShipName: string) {
@@ -21,7 +25,10 @@ function App() {
 		<div className="app-wrapper">
 			<ShipButtons shipName={shipName} onShipSelect={handleShipSelection} />
 			<div className="app">
-				<div className="details" style={{ opacity: isPending ? 0.6 : 1 }}>
+				<div
+					className="details"
+					style={{ opacity: isTransitionPending ? 0.6 : 1 }}
+				>
 					<ErrorBoundary fallback={<ShipError shipName={shipName} />}>
 						<Suspense fallback={<ShipFallback shipName={shipName} />}>
 							<ShipDetails shipName={shipName} />

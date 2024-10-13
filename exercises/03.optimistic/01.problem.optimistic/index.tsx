@@ -1,13 +1,8 @@
-import { Suspense, use, useState, useTransition } from 'react'
+import { Suspense, use, useState, useTransition, useOptimistic } from 'react'
 import * as ReactDOM from 'react-dom/client'
 import { ErrorBoundary, type FallbackProps } from 'react-error-boundary'
 import { useSpinDelay } from 'spin-delay'
-import {
-	// 💰 you're going to want this
-	// type Ship,
-	getShip,
-	createShip,
-} from './utils.tsx'
+import { type Ship, getShip, createShip } from './utils.tsx'
 
 function App() {
 	const [shipName, setShipName] = useState('Dreadnought')
@@ -16,8 +11,7 @@ function App() {
 		delay: 300,
 		minDuration: 350,
 	})
-	// 🐨 add a useOptimistic call here
-	// 🦺 The type should be a Ship | null, (initialized to null)
+	const [optimisticShip, setOptimisticShip] = useOptimistic<Ship | null>(null)
 
 	function handleShipSelection(newShipName: string) {
 		startTransition(() => {
@@ -32,24 +26,27 @@ function App() {
 				<div className="details" style={{ opacity: isPending ? 0.6 : 1 }}>
 					<ErrorBoundary fallback={<ShipError shipName={shipName} />}>
 						<Suspense fallback={<ShipFallback shipName={shipName} />}>
-							{/* 🐨 pass our optimisticShip to ShipDetails here */}
-							<ShipDetails shipName={shipName} />
+							<ShipDetails
+								shipName={shipName}
+								optimisticShip={optimisticShip}
+							/>
 						</Suspense>
 					</ErrorBoundary>
 				</div>
 			</div>
-			{/* 🐨 pass the setOptimisticShip function to CreateForm here */}
-			<CreateForm setShipName={setShipName} />
+			<CreateForm
+				setOptimisticShip={setOptimisticShip}
+				setShipName={setShipName}
+			/>
 		</div>
 	)
 }
 
-// 🐨 accept setOptimisticShip here
 function CreateForm({
+	setOptimisticShip,
 	setShipName,
 }: {
-	// 🦺 I'll give this one to you
-	// setOptimisticShip: (ship: Ship | null) => void
+	setOptimisticShip: (ship: Ship | null) => void
 	setShipName: (name: string) => void
 }) {
 	return (
@@ -58,10 +55,7 @@ function CreateForm({
 			<ErrorBoundary FallbackComponent={FormErrorFallback}>
 				<form
 					action={async (formData) => {
-						// 🐨 create an optimistic ship based on the formData
-						// using the createOptimisticShip utility below
-
-						// 🐨 set the optimistic ship
+						setOptimisticShip(await createOptimisticShip(formData))
 
 						await createShip(formData, 2000)
 
@@ -146,12 +140,15 @@ function ShipButtons({
 	)
 }
 
-// 🐨 accept an optimisticShip prop here
-function ShipDetails({ shipName }: { shipName: string }) {
-	// 🦉 you can change this delay to control how long loading the resource takes:
+function ShipDetails({
+	shipName,
+	optimisticShip,
+}: {
+	shipName: string
+	optimisticShip: Ship | null
+}) {
 	const delay = 2000
-	// 🐨 if we have an optimisticShip, set the ship to that instead
-	const ship = use(getShip(shipName, delay))
+	const ship = optimisticShip ?? use(getShip(shipName, delay))
 	return (
 		<div className="ship-info">
 			<div className="ship-info__img-wrapper">

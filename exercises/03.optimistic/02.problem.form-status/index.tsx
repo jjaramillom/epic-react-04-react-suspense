@@ -3,6 +3,7 @@ import * as ReactDOM from 'react-dom/client'
 import { ErrorBoundary, type FallbackProps } from 'react-error-boundary'
 import { useSpinDelay } from 'spin-delay'
 import { type Ship, getShip, createShip } from './utils.tsx'
+import { useFormStatus } from 'react-dom'
 
 function App() {
 	const [shipName, setShipName] = useState('Dreadnought')
@@ -77,11 +78,19 @@ function CreateForm({
 							required
 						/>
 					</div>
-					{/* 🐨 create a CreateButton component and move this into it */}
-					<button type="submit">Create</button>
+					<CreateButton />
 				</form>
 			</ErrorBoundary>
 		</div>
+	)
+}
+
+function CreateButton() {
+	const formStatus = useFormStatus()
+	return (
+		<button type="submit" disabled={formStatus.pending}>
+			{formStatus.pending ? 'Creating...' : 'Create'}
+		</button>
 	)
 }
 

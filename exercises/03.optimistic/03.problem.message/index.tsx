@@ -1,4 +1,11 @@
-import { Suspense, use, useOptimistic, useState, useTransition } from 'react'
+import {
+	type ReactNode,
+	Suspense,
+	use,
+	useOptimistic,
+	useState,
+	useTransition,
+} from 'react'
 import { useFormStatus } from 'react-dom'
 import * as ReactDOM from 'react-dom/client'
 import { ErrorBoundary, type FallbackProps } from 'react-error-boundary'
@@ -47,6 +54,7 @@ function CreateForm({
 	setOptimisticShip: (ship: Ship | null) => void
 	setShipName: (name: string) => void
 }) {
+	const [message, setMessage] = useOptimistic('Create')
 	// 🐨 call useOptimistic for message and setMessage (initialize to 'Create')
 	return (
 		<div>
@@ -56,9 +64,11 @@ function CreateForm({
 					action={async (formData) => {
 						// 🐨 set the message to "Creating..."
 						setOptimisticShip(await createOptimisticShip(formData))
+						setMessage('Creating')
 
 						await createShip(formData, 2000)
 
+						setMessage('Created! Loading...')
 						// 🐨 set the message to "Created! Loading..."
 
 						setShipName(formData.get('name') as string)
@@ -82,22 +92,18 @@ function CreateForm({
 							required
 						/>
 					</div>
-					{/* 🐨 pass the message as children */}
-					<CreateButton />
+					<CreateButton>{message}</CreateButton>
 				</form>
 			</ErrorBoundary>
 		</div>
 	)
 }
-
-// 🐨 accept children
-// 🦺 the type for children is React.ReactNode
-function CreateButton() {
+ 
+function CreateButton({ children }: { children: ReactNode }) {
 	const { pending } = useFormStatus()
 	return (
 		<button type="submit" disabled={pending}>
-			{/* 🐨 remove this and put children in its place */}
-			{pending ? 'Creating...' : 'Create'}
+			{children}
 		</button>
 	)
 }

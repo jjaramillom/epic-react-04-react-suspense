@@ -64,7 +64,7 @@ function ShipDetails({ shipName }: { shipName: string }) {
 		<div className="ship-info">
 			<div className="ship-info__img-wrapper">
 				{/* 🐨 change this to the ShipImg component */}
-				<Img
+				<ShipImg
 					src={getImageUrlForShip(ship.name, { size: 200 })}
 					alt={ship.name}
 				/>
@@ -139,6 +139,14 @@ function ShipError({ shipName }: { shipName: string }) {
 			</section>
 			<section>There was an error loading "{shipName}"</section>
 		</div>
+	)
+}
+
+function ShipImg(props: React.ComponentProps<'img'>) {
+	return (
+		<ErrorBoundary fallback={<img {...props} />}>
+			<Img {...props} />
+		</ErrorBoundary>
 	)
 }
 

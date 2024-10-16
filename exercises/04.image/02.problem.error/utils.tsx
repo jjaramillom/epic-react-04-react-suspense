@@ -45,7 +45,7 @@ export function getImageUrlForShip(
 	shipName: string,
 	{ size }: { size: number },
 ) {
-	// return `/img/ships/${shipName.toLowerCase().replaceAll(' ', '-')}.webp?size=${size}&version=${version}`
+	return `/img/ships/${shipName.toLowerCase().replaceAll(' ', '-')}.webp?size=${size}&version=${version}`
 	// 🧝‍♂️ This is just here for us to test what happens when the image fails to load
 	const intentionalTypoUrl = `/img/typo/${shipName.toLowerCase().replaceAll(' ', '-')}.webp?size=${size}&version=${version}`
 	return intentionalTypoUrl

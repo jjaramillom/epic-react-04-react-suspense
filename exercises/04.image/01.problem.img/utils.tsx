@@ -21,6 +21,17 @@ async function getShipImpl(name: string, delay?: number) {
 	return ship as Ship
 }
 
+const imgCache = new Map<string, Promise<string>>()
+
+export function imgSrc(src: string) {
+	let img = imgCache.get(src)
+	if (!img) {
+		img = preloadImage(src)
+		imgCache.set(src, img)
+	}
+	return img
+}
+
 // 🐨 create an imgCache here that's a map of string and Promise<string>
 
 // 🐨 export a function called imgSrc that takes a src string
@@ -29,14 +40,14 @@ async function getShipImpl(name: string, delay?: number) {
 //   - return the imgPromise
 
 // 💰 here's a function you can use to wait for the image to be ready to display
-// function preloadImage(src: string) {
-// 	return new Promise<string>(async (resolve, reject) => {
-// 		const img = new Image()
-// 		img.src = src
-// 		img.onload = () => resolve(src)
-// 		img.onerror = reject
-// 	})
-// }
+function preloadImage(src: string) {
+	return new Promise<string>(async (resolve, reject) => {
+		const img = new Image()
+		img.src = src
+		img.onload = () => resolve(src)
+		img.onerror = reject
+	})
+}
 
 // added the version to prevent caching to make testing easier
 const version = Date.now()
